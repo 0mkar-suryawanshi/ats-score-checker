@@ -5,7 +5,7 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Step 3.3: Copy the JAR file from your target folder
-COPY target/*.jar app.jar
+COPY src/target/*.jar app.jar
 
 # Step 3.4: Expose port 8080 (Spring Boot default)
 EXPOSE 8080
