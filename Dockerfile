@@ -1,14 +1,30 @@
-# Step 3.1: Specify base image
-FROM eclipse-temurin:21-jre 
+# Step 1: Build stage
+FROM maven:3.8.4-eclipse-temurin-21 AS build
 
-# Step 3.2: Set working directory inside container
+# Set working directory
 WORKDIR /app
 
-# Step 3.3: Copy the JAR file from your target folder
-COPY src/target/*.jar app.jar
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Step 3.4: Expose port 8080 (Spring Boot default)
+# Copy source code
+COPY src ./src
+
+# Build the application
+RUN mvn clean package -DskipTests
+
+# Step 2: Run stage
+FROM eclipse-temurin:21-jre
+
+# Set working directory
+WORKDIR /app
+
+# Copy the JAR from build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port
 EXPOSE 8080
 
-# Step 3.5: Command to run the application
+# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
